@@ -5,35 +5,29 @@ canvas.addEventListener('click', handleClick);
 
 let dotX;
 let dotY;
-let dotDirection;
 const dotRadius = 20;
-
-const canvasMaxXY = 600;
-const canvasMinXY = 0;
 
 let clickX;
 let clickY;
 
 let hits = 0;
-let misses = 0;
+let misses = -1;
 let hitsLabel = document.getElementById('hitsLabel');
 let missesLabel = document.getElementById('missesLabel');
 
 let onStartPage;
-let gameEnded = false;
 
 let timerID;
-let easyness = 1000;
+let easyness = 2000;
 
-c.save();
-createElements();
+displayStart();
 
 function handleClick(e) {
     getMouseCoordinates(e);
     detectClickOnStart();
 }
 
-function createElements() {
+function displayStart() {
     c.beginPath();
     c.fillRect(100,400,400,100);
 
@@ -46,27 +40,68 @@ function createElements() {
     c.fillText('The faster you click, the faster it gets...', 150, 240);
     c.fillText('Good luck!', 150, 270);
 
-    
     c.font = "50px Arial";
     c.fillStyle = 'white';
     c.fillText('START', 220, 470);
     onStartPage = true;
 }
 
-function detectClickOnStart() {
-    let clickedStartButton = clickX > 100 && clickX < 500 && clickY >   400 && clickY < 500 && onStartPage;
+function getMouseCoordinates(event) {
+    clickX = event.offsetX;
+    clickY = event.offsetY;
+}
 
+function detectClickOnStart() {
+    let gameOver = isGameOver();
+    let clickedStartButton = isClickOnStart();
     let clickedOnDot = isClickOnDot();
 
+    if (gameOver) {
+        endGame();
+    }
+
     if (clickedStartButton) {
+        c.clearRect(0,0,600,600);
         timerID = setInterval(startRound, easyness);
     }
 
+    // TODO: fix timerID interval;
+    // TODO: fix misses getting updated after start click.
+    let firstMiss = misses == -1;
+
     if (clickedOnDot) {
-        easyness += 5;
+
+        // easyness -= 100;
         hits++;
         hitsLabel.innerHTML = 'HITS: ' + hits;
+        c.clearRect(0,0,600,600);
+    } else {
+        if (firstMiss) {
+            misses = 0;
+        } else {
+            misses++;
+            missesLabel.innerHTML = 'MISSES: ' + misses;
+        }
+        
     }
+}
+
+function isClickOnStart() {
+    return clickX > 100 && clickX < 500 && clickY >   400 && clickY < 500 && onStartPage;
+}
+
+function isClickOnDot() {
+    return Math.sqrt(Math.pow((clickX - dotX), 2) + Math.pow((clickY - dotY), 2)) <= dotRadius;
+}
+
+function isGameOver() {
+    return misses >= 5;
+}
+
+function endGame() {
+    c.clearRect(0,0,600,600);
+    clearInterval(timerID);
+    console.log('results');
 }
 
 function startRound() {
@@ -77,13 +112,15 @@ function startRound() {
 function setDotPosition() {
     const minXY = 20
     const maxXY = 580;
-    
-    // TODO random position.
+
     dotX = Math.random() * (maxXY - minXY) + minXY;
     dotY = Math.random() * (maxXY - minXY) + minXY;
 }
 
 function drawDot() {
+    const canvasMaxXY = 600;
+    const canvasMinXY = 0;
+
     c.clearRect(canvasMinXY,canvasMinXY,canvasMaxXY,canvasMaxXY);
     c.save();
     c.beginPath();
@@ -91,13 +128,4 @@ function drawDot() {
     c.fillStyle = 'black';
     c.fill();
     c.restore();
-}
-
-function getMouseCoordinates(event) {
-    clickX = event.offsetX;
-    clickY = event.offsetY;
-}
-
-function isClickOnDot() {
-    return Math.sqrt(Math.pow((clickX - dotX), 2) + Math.pow((clickY - dotY), 2)) <= dotRadius;
 }
