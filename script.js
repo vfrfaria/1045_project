@@ -1,3 +1,7 @@
+// Limitation: if the user does not click on the ball, it does not count as a miss.
+
+// TODO: fix timerID interval;
+
 let canvas = document.getElementById('myCanvas');
 canvas.addEventListener('click', handleClick);
 
@@ -16,22 +20,92 @@ let hitsLabel = document.getElementById('hitsLabel');
 let missesLabel = document.getElementById('missesLabel');
 
 let onStartPage;
+let onEndPage;
 let dotOnScreen;
 
 let timerID;
-// let easyness = 2000;
+let easyness = 2000;
 
-displayStart();
+displayStartMenu();
 
 function handleClick(event) {
-    // TODO: move game logic here
     getMouseCoordinates(event);
-    detectClickOnStart();
+
+    isClickOnStart();
+    isClickOnDot();
 }
 
-function displayStart() {
+function displayStartMenu() {
     onStartPage = true;
+    createStartMenuElements();
+}
 
+function isClickOnStart() {
+    let clickedStartButton = clickX > 100 && clickX < 500 && clickY >   400 && clickY < 500 && onStartPage;
+
+    if (clickedStartButton) {
+        dotOnScreen = false;
+        c.clearRect(0,0,600,600);
+        timerID = setInterval(startRound, easyness);
+        onStartPage = false;
+    } 
+}
+
+function isClickOnDot() {
+    let clickedOnDot = Math.sqrt(Math.pow((clickX - dotX), 2) + Math.pow((clickY - dotY), 2)) <= dotRadius;
+
+    if (clickedOnDot) {
+        // easyness -= 100;
+        hits++;
+        hitsLabel.innerHTML = 'HITS: ' + hits;
+        c.clearRect(0,0,600,600);
+        dotOnScreen = false;
+    }
+
+    if (dotOnScreen && !onStartPage) {
+        misses++;
+        missesLabel.innerHTML = 'MISSES: ' + misses;
+        c.clearRect(0,0,600,600);
+        dotOnScreen = false;
+    }
+}
+
+function startRound() {
+    isGameOver();
+    setDotPosition();
+    drawDot();
+}
+
+function drawDot() {
+    const canvasMaxXY = 600;
+    const canvasMinXY = 0;
+
+    c.clearRect(canvasMinXY,canvasMinXY,canvasMaxXY,canvasMaxXY);
+    c.save();
+    c.beginPath();
+    c.arc(dotX, dotY, dotRadius, 0, 2 * Math.PI);
+    c.fillStyle = 'black';
+    c.fill();
+    c.restore();
+    dotOnScreen = true;
+}
+
+function endGame() {
+    // TODO: implement if clause to handle click on endPage.
+    // if clause should call resetGame() function to reset hits/misses and call displayStart();
+    onEndPage = true;
+    c.clearRect(0,0,600,600);
+    clearInterval(timerID);
+    // Display game over page.
+    // Reset
+}
+
+
+
+
+//  Helper functions
+
+function createStartMenuElements() {
     c.beginPath();
     c.fillRect(100,400,400,100);
 
@@ -54,62 +128,6 @@ function getMouseCoordinates(event) {
     clickY = event.offsetY;
 }
 
-function detectClickOnStart() {
-    let gameOver = isGameOver();
-    let clickedStartButton = isClickOnStart();
-    let clickedOnDot = isClickOnDot();
-
-    if (gameOver) {
-        endGame();
-    }
-
-    if (clickedStartButton) {
-        dotOnScreen = false;
-        c.clearRect(0,0,600,600);
-        timerID = setInterval(startRound, easyness);
-        onStartPage = false;
-    }
-
-    // TODO: fix timerID interval;
-    if (clickedOnDot) {
-        // easyness -= 100;
-        hits++;
-        hitsLabel.innerHTML = 'HITS: ' + hits;
-        c.clearRect(0,0,600,600);
-        dotOnScreen = false;
-    }
-
-    if (dotOnScreen && !onStartPage) {
-        misses++;
-        missesLabel.innerHTML = 'MISSES: ' + misses;
-        c.clearRect(0,0,600,600);
-        dotOnScreen = false;
-    }
-}
-
-function isClickOnStart() {
-    return clickX > 100 && clickX < 500 && clickY >   400 && clickY < 500 && onStartPage;
-}
-
-function isClickOnDot() {
-    return Math.sqrt(Math.pow((clickX - dotX), 2) + Math.pow((clickY - dotY), 2)) <= dotRadius;
-}
-
-function isGameOver() {
-    return misses > 5;
-}
-
-function endGame() {
-    c.clearRect(0,0,600,600);
-    clearInterval(timerID);
-    // Display game over page.
-}
-
-function startRound() {
-    setDotPosition();
-    drawDot();
-}
-
 function setDotPosition() {
     const minXY = 20
     const maxXY = 580;
@@ -118,16 +136,8 @@ function setDotPosition() {
     dotY = Math.random() * (maxXY - minXY) + minXY;
 }
 
-function drawDot() {
-    const canvasMaxXY = 600;
-    const canvasMinXY = 0;
-
-    c.clearRect(canvasMinXY,canvasMinXY,canvasMaxXY,canvasMaxXY);
-    c.save();
-    c.beginPath();
-    c.arc(dotX, dotY, dotRadius, 0, 2 * Math.PI);
-    c.fillStyle = 'black';
-    c.fill();
-    c.restore();
-    dotOnScreen = true;
+function isGameOver() {
+    if (misses == 4) {
+        endGame();
+    }
 }
