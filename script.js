@@ -1,6 +1,10 @@
 // Limitation: if the user does not click on the ball, it does not count as a miss.
 
-// TODO: fix timerID interval;
+// TODO: fix timerID interval increase when clicking dots;
+// TODO: implement restart button.
+
+// TODO: set Timeout to 30s before submission and test;
+// TODO: set easiness to proper value before submission and test;
 
 let canvas = document.getElementById('myCanvas');
 canvas.addEventListener('click', handleClick);
@@ -20,17 +24,16 @@ let hitsLabel = document.getElementById('hitsLabel');
 let missesLabel = document.getElementById('missesLabel');
 
 let onStartPage;
-let onEndPage;
+// let onEndPage; -> to be used on restart feature.
 let dotOnScreen;
 
 let timerID;
-let easyness = 2000;
+let easiness = 500;
 
 displayStartMenu();
 
 function handleClick(event) {
     getMouseCoordinates(event);
-
     isClickOnStart();
     isClickOnDot();
 }
@@ -41,12 +44,14 @@ function displayStartMenu() {
 }
 
 function isClickOnStart() {
+    setTimeout(displayEndMenu, 3000);
+
     let clickedStartButton = clickX > 100 && clickX < 500 && clickY >   400 && clickY < 500 && onStartPage;
 
     if (clickedStartButton) {
         dotOnScreen = false;
         c.clearRect(0,0,600,600);
-        timerID = setInterval(startRound, easyness);
+        timerID = setInterval(startRound, easiness);
         onStartPage = false;
     } 
 }
@@ -55,7 +60,7 @@ function isClickOnDot() {
     let clickedOnDot = Math.sqrt(Math.pow((clickX - dotX), 2) + Math.pow((clickY - dotY), 2)) <= dotRadius;
 
     if (clickedOnDot) {
-        // easyness -= 100;
+        // easiness -= 100; -> probable place to increase the difficulty of the game.
         hits++;
         hitsLabel.innerHTML = 'HITS: ' + hits;
         c.clearRect(0,0,600,600);
@@ -90,14 +95,10 @@ function drawDot() {
     dotOnScreen = true;
 }
 
-function endGame() {
-    // TODO: implement if clause to handle click on endPage.
-    // if clause should call resetGame() function to reset hits/misses and call displayStart();
-    onEndPage = true;
-    c.clearRect(0,0,600,600);
+function displayEndMenu() {
+    // onEndPage = true;
     clearInterval(timerID);
-    // Display game over page.
-    // Reset
+    createEndMenuElements();
 }
 
 
@@ -106,7 +107,6 @@ function endGame() {
 //  Helper functions
 
 function createStartMenuElements() {
-    c.beginPath();
     c.fillRect(100,400,400,100);
 
     c.font = "36px Arial";
@@ -121,6 +121,28 @@ function createStartMenuElements() {
     c.font = "50px Arial";
     c.fillStyle = 'white';
     c.fillText('START', 220, 470);
+    c.fillStyle = 'black';
+}
+
+function createEndMenuElements() {
+    c.fillStyle = 'white';
+    c.fillRect(0,0,600,600);
+
+    c.fillStyle = 'black';
+    c.fillRect(100,400,400,100);
+
+    c.font = "50px Arial";
+    c.fillText('GAME OVER', 130, 80);
+
+    c.font = "20px Arial";
+    c.fillText('You can see your score below', 150, 150);
+    c.fillText('Keep playing to improve it!', 150, 240);
+    c.fillText('Good luck!', 150, 270);
+
+    c.font = "20px Arial";
+    c.fillStyle = 'white';
+    c.fillText('Refresh page to restart', 185, 455);
+    c.fillStyle = 'black';
 }
 
 function getMouseCoordinates(event) {
@@ -138,6 +160,6 @@ function setDotPosition() {
 
 function isGameOver() {
     if (misses == 4) {
-        endGame();
+        displayEndMenu();
     }
 }
