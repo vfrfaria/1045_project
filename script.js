@@ -1,7 +1,7 @@
 let canvas = document.getElementById('myCanvas');
-let c = canvas.getContext('2d');
-
 canvas.addEventListener('click', handleClick);
+
+let c = canvas.getContext('2d');
 
 let dotX;
 let dotY;
@@ -11,23 +11,27 @@ let clickX;
 let clickY;
 
 let hits = 0;
-let misses = -1;
+let misses = 0;
 let hitsLabel = document.getElementById('hitsLabel');
 let missesLabel = document.getElementById('missesLabel');
 
 let onStartPage;
+let dotOnScreen;
 
 let timerID;
-let easyness = 2000;
+// let easyness = 2000;
 
 displayStart();
 
-function handleClick(e) {
-    getMouseCoordinates(e);
+function handleClick(event) {
+    // TODO: move game logic here
+    getMouseCoordinates(event);
     detectClickOnStart();
 }
 
 function displayStart() {
+    onStartPage = true;
+
     c.beginPath();
     c.fillRect(100,400,400,100);
 
@@ -43,7 +47,6 @@ function displayStart() {
     c.font = "50px Arial";
     c.fillStyle = 'white';
     c.fillText('START', 220, 470);
-    onStartPage = true;
 }
 
 function getMouseCoordinates(event) {
@@ -61,28 +64,26 @@ function detectClickOnStart() {
     }
 
     if (clickedStartButton) {
+        dotOnScreen = false;
         c.clearRect(0,0,600,600);
         timerID = setInterval(startRound, easyness);
+        onStartPage = false;
     }
 
     // TODO: fix timerID interval;
-    // TODO: fix misses getting updated after start click.
-    let firstMiss = misses == -1;
-
     if (clickedOnDot) {
-
         // easyness -= 100;
         hits++;
         hitsLabel.innerHTML = 'HITS: ' + hits;
         c.clearRect(0,0,600,600);
-    } else {
-        if (firstMiss) {
-            misses = 0;
-        } else {
-            misses++;
-            missesLabel.innerHTML = 'MISSES: ' + misses;
-        }
-        
+        dotOnScreen = false;
+    }
+
+    if (dotOnScreen && !onStartPage) {
+        misses++;
+        missesLabel.innerHTML = 'MISSES: ' + misses;
+        c.clearRect(0,0,600,600);
+        dotOnScreen = false;
     }
 }
 
@@ -95,13 +96,13 @@ function isClickOnDot() {
 }
 
 function isGameOver() {
-    return misses >= 5;
+    return misses > 5;
 }
 
 function endGame() {
     c.clearRect(0,0,600,600);
     clearInterval(timerID);
-    console.log('results');
+    // Display game over page.
 }
 
 function startRound() {
@@ -128,4 +129,5 @@ function drawDot() {
     c.fillStyle = 'black';
     c.fill();
     c.restore();
+    dotOnScreen = true;
 }
