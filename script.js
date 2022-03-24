@@ -5,6 +5,7 @@
 
 // TODO: set Timeout to 30s before submission and test;
 // TODO: set easiness to proper value before submission and test;
+// 
 
 let canvas = document.getElementById('myCanvas');
 canvas.addEventListener('click', handleClick);
@@ -44,14 +45,17 @@ function displayStartMenu() {
 }
 
 function isClickOnStart() {
-    setTimeout(displayEndMenu, 3000);
-
     let clickedStartButton = clickX > 100 && clickX < 500 && clickY >   400 && clickY < 500 && onStartPage;
 
     if (clickedStartButton) {
+        setTimeout(displayEndMenu, 3000);
         dotOnScreen = false;
         c.clearRect(0,0,600,600);
-        timerID = setInterval(startRound, easiness);
+
+        if (timerID == null) {
+            timerID = setInterval(startRound, easiness);
+        }
+
         onStartPage = false;
     } 
 }
@@ -60,7 +64,10 @@ function isClickOnDot() {
     let clickedOnDot = Math.sqrt(Math.pow((clickX - dotX), 2) + Math.pow((clickY - dotY), 2)) <= dotRadius;
 
     if (clickedOnDot) {
-        // easiness -= 100; -> probable place to increase the difficulty of the game.
+        clearInterval(timerID);
+        timerID = null;
+        easiness -= 100;
+        setInterval(startRound, easiness);
         hits++;
         hitsLabel.innerHTML = 'HITS: ' + hits;
         c.clearRect(0,0,600,600);
@@ -159,7 +166,7 @@ function setDotPosition() {
 }
 
 function isGameOver() {
-    if (misses == 4) {
+    if (misses >= 4) {
         displayEndMenu();
     }
 }
