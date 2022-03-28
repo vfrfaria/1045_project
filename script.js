@@ -1,6 +1,5 @@
 // Limitation: if the user does not click on the ball, it does not count as a miss.
 
-// TODO: fix timerID interval increase when clicking dots;
 // TODO: implement restart button.
 
 // TODO: set Timeout to 30s before submission and test;
@@ -25,7 +24,7 @@ let hitsLabel = document.getElementById('hitsLabel');
 let missesLabel = document.getElementById('missesLabel');
 
 let onStartPage;
-// let onEndPage; -> to be used on restart feature.
+let onEndPage;
 let dotOnScreen;
 
 let timerID;
@@ -35,6 +34,12 @@ displayStartMenu();
 
 function handleClick(event) {
     getMouseCoordinates(event);
+
+    let gameEnded = isClickOnEnd();
+    if (gameEnded) {
+        return;
+    }
+    
     isClickOnStart();
     isClickOnDot();
 }
@@ -82,6 +87,10 @@ function isClickOnDot() {
     }
 }
 
+function isClickOnEnd() {
+    return onEndPage;
+}
+
 function startRound() {
     setDotPosition();
     drawDot();
@@ -102,7 +111,7 @@ function drawDot() {
 }
 
 function displayEndMenu() {
-    // onEndPage = true;
+    onEndPage = true;
     clearInterval(timerID);
     createEndMenuElements();
 }
