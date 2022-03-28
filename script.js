@@ -29,7 +29,7 @@ let onStartPage;
 let dotOnScreen;
 
 let timerID;
-let easiness = 500;
+let easiness = 1500;
 
 displayStartMenu();
 
@@ -48,7 +48,7 @@ function isClickOnStart() {
     let clickedStartButton = clickX > 100 && clickX < 500 && clickY >   400 && clickY < 500 && onStartPage;
 
     if (clickedStartButton) {
-        setTimeout(displayEndMenu, 3000);
+        setTimeout(displayEndMenu, 5000);
         dotOnScreen = false;
         c.clearRect(0,0,600,600);
 
@@ -83,7 +83,6 @@ function isClickOnDot() {
 }
 
 function startRound() {
-    isGameOver();
     setDotPosition();
     drawDot();
 }
@@ -117,7 +116,7 @@ function createStartMenuElements() {
     c.fillRect(100,400,400,100);
 
     c.font = "36px Arial";
-    c.fillText('Hand-eye coordination trainer', 50, 50);
+    c.fillText('Click dots', 50, 50);
 
     c.font = "20px Arial";
     c.fillText('You have 30 seconds to click on', 150, 150);
@@ -163,10 +162,4 @@ function setDotPosition() {
 
     dotX = Math.random() * (maxXY - minXY) + minXY;
     dotY = Math.random() * (maxXY - minXY) + minXY;
-}
-
-function isGameOver() {
-    if (misses >= 4) {
-        displayEndMenu();
-    }
 }
