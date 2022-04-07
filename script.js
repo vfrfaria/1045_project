@@ -1,9 +1,3 @@
-// Limitation: if the user does not click on the ball, it does not count as a miss.
-
-
-
-
-
 ////////// Variables declarations //////////
 
 let canvas = document.getElementById('myCanvas');
