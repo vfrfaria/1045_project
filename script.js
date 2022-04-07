@@ -3,6 +3,9 @@
 let canvas = document.getElementById('myCanvas');
 canvas.addEventListener('click', handleClick);
 
+let timer = document.getElementById('timer');
+let secondsLeft = 30;
+
 let c = canvas.getContext('2d');
 
 let dotX;
@@ -22,7 +25,7 @@ let onEndPage;
 let dotOnScreen;
 
 // Play time in milliseconds.
-let playTime = 30000;
+let playTime = 31000;
 // How frequent dots are going to be displayed on the screen (in milliseconds).
 let easiness = 1500;
 
@@ -38,29 +41,31 @@ let hardButtonColor = 'black';
 
 ////////// Game logic //////////
 
+// Display start screen
 displayStartMenu();
 
 function handleClick(event) {
     getMouseCoordinates(event);
     
+    // 'Disables' click if on end Page
     if (onEndPage) {
         return;
     }
-    
+
     chooseDifficultyLevel();
     isClickOnStart();
     isClickOnDot();
 }
 
 function chooseDifficultyLevel() {
+    // If on start page, this function will be excuted.
     if (!onStartPage) {
         return;
     }
 
+    // Area in pixels of the difficulty buttons.
     let easyLevel = clickX > 230 && clickX < 480 && clickY > 255 && clickY < 295 && onStartPage;
-
     let intermediateLevel = clickX > 230 && clickX < 480 && clickY > 300 && clickY < 340 && onStartPage;
-
     let hardLevel = clickX > 230 && clickX < 480 && clickY > 345 && clickY < 385 && onStartPage;
 
     if (easyLevel) {
@@ -80,6 +85,7 @@ function chooseDifficultyLevel() {
         hardButtonColor = 'red';
     }
 
+    // 'Re-creates' the start menu to update the buttons colors (red/black).
     displayStartMenu();
 }
 
@@ -93,11 +99,20 @@ function isClickOnStart() {
 
     if (clickedStartButton) {
         onStartPage = false;
+
+        // Start function that will end the game.
         setTimeout(displayEndMenu, playTime);
+
+        // Starts timer
+        countdown();
+        
         dotOnScreen = false;
         c.clearRect(0,0,600,600);
+        hitsLabel.innerHTML = 'HITS: ' + hits;
+        missesLabel.innerHTML = 'MISSES: ' + misses;
 
         if (timerID == null) {
+            // Starts drawing the dots.
             timerID = setInterval(startRound, easiness);
         }
     } 
@@ -106,6 +121,7 @@ function isClickOnStart() {
 function isClickOnDot() {
     let clickedOnDot = Math.sqrt(Math.pow((clickX - dotX), 2) + Math.pow((clickY - dotY), 2)) <= dotRadius;
 
+    // Hit condition
     if (clickedOnDot) {
         hits++;
         hitsLabel.innerHTML = 'HITS: ' + hits;
@@ -113,6 +129,7 @@ function isClickOnDot() {
         dotOnScreen = false;
     }
 
+    // Miss condition.
     if (dotOnScreen && !onStartPage) {
         misses++;
         missesLabel.innerHTML = 'MISSES: ' + misses;
@@ -152,6 +169,20 @@ function displayEndMenu() {
 
 
 //////////  Helper functions //////////
+
+function countdown() {
+    let timeout = 0;
+
+    for (let i = 30; i >= 0; i--) {
+        setTimeout(updateTimer, timeout);
+        timeout += 1000;
+    }
+}
+
+function updateTimer() {
+    timer.innerHTML = "TIME REMAINING: " + secondsLeft;
+    secondsLeft--;
+}
 
 function createStartMenuElements() {
     
